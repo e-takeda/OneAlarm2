@@ -11,7 +11,9 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.TimeZone;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -25,19 +27,23 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+
         enter = (Button) findViewById(R.id.enter);
         enter.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
-                timeConf(mhours(), mminutes());
+            public void onClick(View v){
+
+                timerSet();
             }
-            timerSet();
+
 
 
         });
 
 
-
+//        public void onClick(View v) {
+//            timeConf(mhours(), mminutes());
+//        }
 
 
 
@@ -62,14 +68,30 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    public void timerSet(Calendar calendar){
+    public void timerSet(){
         Intent intent = new Intent(getApplicationContext(), messageService.class);
         Context ct = getApplication();
         PendingIntent pendingIntent = PendingIntent.getService(ct, 0,
                 intent, PendingIntent.FLAG_UPDATE_CURRENT);
-        Calendar calendar = Calendar.getInstance(); // Calendar取得
+
+
+
+        Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("Asia/Tokyo")); // Calendar取得
         calendar.setTimeInMillis(System.currentTimeMillis()); // 現在時刻を取得
-        calendar.add(Calendar.SECOND, 15);
+
+
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy年MM月dd日hh時mm分ss秒");
+        System.out.println(sdf.format(calendar.getTime()));
+//        calendar.set(Calendar.HOUR, Integer.parseInt(mhours()));
+//        calendar.set(Calendar.MINUTE, Integer.parseInt(mminutes()));
+//        calendar.set(Calendar.SECOND, 0);
+//        calendar.set(Calendar.MILLISECOND, 0);
+
+        calendar.add(Calendar.SECOND, 5);
+
+        System.out.println(sdf.format(calendar.getTime()));
+
+
 
 
 
