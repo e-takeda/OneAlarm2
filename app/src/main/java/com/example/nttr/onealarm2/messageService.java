@@ -29,9 +29,10 @@ public class messageService extends Service{
     Runnable task = new Runnable()
     {
         public void run() {
-            Intent messageBroadcast = new Intent();
-            messageBroadcast.setAction("alarmAction");
-            sendBroadcast(messageBroadcast);
+            Intent AlarmBroadcastReceiver = new Intent();
+            AlarmBroadcastReceiver.setAction("alarmAction");
+            sendBroadcast(AlarmBroadcastReceiver);
+
             stopSelf();
         }
 
