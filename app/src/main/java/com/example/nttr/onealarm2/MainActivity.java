@@ -3,8 +3,11 @@ package com.example.nttr.onealarm2;
 import android.annotation.SuppressLint;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.media.AudioManager;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -27,6 +30,11 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        //イヤホン検知
+        registerReceiver(broadcastReceiver, new IntentFilter(Intent.ACTION_HEADSET_PLUG));
+        registerReceiver(broadcastReceiver, new IntentFilter(AudioManager.ACTION_AUDIO_BECOMING_NOISY));
+
         setContentView(R.layout.activity_main);
 
 //        //Intentを取得
@@ -138,13 +146,13 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-
-    public void snooze(){
-        calendar.add(Calendar.MINUTE, 5);
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy年MM月dd日hh時mm分ss秒");
-        System.out.println(sdf.format(calendar.getTime()));
-        alarm();
-    }
+//
+//    public void snooze(){
+//        calendar.add(Calendar.MINUTE, 5);
+//        SimpleDateFormat sdf = new SimpleDateFormat("yyyy年MM月dd日hh時mm分ss秒");
+//        System.out.println(sdf.format(calendar.getTime()));
+//        alarm();
+//    }
 
 
 
@@ -160,6 +168,53 @@ public class MainActivity extends AppCompatActivity {
         // あとからのものが上書きされる
         return PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
     }
+
+
+
+    private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            final String action = intent.getAction();
+            if (action == null) {
+                return;
+            }
+
+            switch (action) {
+                case Intent.ACTION_HEADSET_PLUG:
+
+                    int state = intent.getIntExtra("state", -1);
+                    if (state == 0) {
+                        // ヘッドセットが装着されていない・外された
+                        System.out.println("ヘッドセットなし");
+                    } else if (state > 0) {
+                        // イヤホン・ヘッドセット(マイク付き)が装着された
+                        System.out.println("ヘッドセット装着");
+                    }
+                    break;
+                case AudioManager.ACTION_AUDIO_BECOMING_NOISY:
+
+                    // 音声経路の変更！大きな音が鳴りますよ！！
+                    System.out.println("ヘッドセットなし２");
+                    break;
+                default:
+                    break;
+            }
+        }
+    };
+
+
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        unregisterReceiver(broadcastReceiver);
+    }
+
+
+
+
+
 
 
 }
