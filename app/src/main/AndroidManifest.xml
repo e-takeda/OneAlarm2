@@ -16,6 +16,8 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".messageActivity">
+        </activity>
         <service android:name=".messageService" />
         <receiver android:name=".AlarmBroadcastReceiver" >
             <intent-filter>
