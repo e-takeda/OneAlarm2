@@ -3,6 +3,7 @@ package com.example.nttr.onealarm2;
 import android.annotation.SuppressLint;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
+import android.app.TimePickerDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -14,7 +15,9 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.TimePicker;
 
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.TimeZone;
@@ -26,14 +29,20 @@ public class MainActivity extends AppCompatActivity {
     EditText Eminute;
     TextView confview;
     Calendar calendar;
+    Button set;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+
+
         //イヤホン検知
         registerReceiver(broadcastReceiver, new IntentFilter(Intent.ACTION_HEADSET_PLUG));
         registerReceiver(broadcastReceiver, new IntentFilter(AudioManager.ACTION_AUDIO_BECOMING_NOISY));
+
+
+
 
         setContentView(R.layout.activity_main);
 
@@ -60,10 +69,19 @@ public class MainActivity extends AppCompatActivity {
 
             });
 
+        set = (Button) findViewById(R.id.set);
+        set.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
 
-//        public void onClick(View v) {
-//            timeConf(mhours(), mminutes());
-//        }
+                timeSet();
+            }
+
+
+        });
+
+
+
         }
 
 //    }
@@ -90,13 +108,13 @@ public class MainActivity extends AppCompatActivity {
 
 
 
+
+
     public void timerSet() {
 //        Intent intent = new Intent(getApplicationContext(), messageService.class);
 //        Context ct = getApplication();
 //        PendingIntent pendingIntent = PendingIntent.getService(ct, 0,
 //                intent, PendingIntent.FLAG_UPDATE_CURRENT);
-
-
 
 
 
@@ -212,6 +230,42 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+
+
+
+
+
+
+           public void timeSet(){
+
+
+                final Calendar Dcalendar = Calendar.getInstance(TimeZone.getTimeZone("Asia/Tokyo"));
+                final Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("Asia/Tokyo"));// Calendar取得
+                calendar.setTimeInMillis(System.currentTimeMillis()); // 現在時刻を取得
+
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy年MM月dd日hh時mm分ss秒");
+                System.out.println(sdf.format(calendar.getTime()));
+
+
+
+                final int hour = calendar.get(Calendar.HOUR_OF_DAY);
+                final int minute = calendar.get(Calendar.MINUTE);
+
+                TimePickerDialog timePickerDialog = new TimePickerDialog(MainActivity.this, new TimePickerDialog.OnTimeSetListener() {
+                    @Override
+                    public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
+
+                        calendar.set(Calendar.HOUR_OF_DAY, hourOfDay);
+                        calendar.set(Calendar.MINUTE, minute);
+                        calendar.set(Calendar.SECOND, 0);
+                        calendar.set(Calendar.MILLISECOND, 0);
+                        DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                        set.setText(df.format(calendar.getTime()));
+
+                    }
+                }, hour, minute, true);
+                timePickerDialog.show();
+            }
 
 
 
