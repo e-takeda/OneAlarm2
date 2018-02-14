@@ -6,6 +6,7 @@ import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.IBinder;
+import android.os.Vibrator;
 
 import java.io.IOException;
 
@@ -18,6 +19,8 @@ public class messageService extends Service implements MediaPlayer.OnCompletionL
 
     MediaPlayer mediaPlayer;
     float volume = 0.1f;
+    private Vibrator vib;
+    private long pattern[] = {1000, 200, 700, 200, 400, 200 };
 
 
     public void onCreate()
@@ -59,6 +62,11 @@ public class messageService extends Service implements MediaPlayer.OnCompletionL
             mediaPlayer.setOnCompletionListener(this);
             mediaPlayer.prepare();
             mediaPlayer.start();
+            vib = (Vibrator)getSystemService(VIBRATOR_SERVICE);
+            vib.vibrate(1000);
+            vib.vibrate(pattern, 0);
+
+
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -70,6 +78,7 @@ public class messageService extends Service implements MediaPlayer.OnCompletionL
             mediaPlayer.stop();
             mediaPlayer.release();
             mediaPlayer = null;
+            vib.cancel();
         }
     }
 
@@ -78,9 +87,7 @@ public class messageService extends Service implements MediaPlayer.OnCompletionL
 
     @Override
     public void onCompletion(MediaPlayer mp) {
-
         play();
-
     }
 
 //    Runnable task = new Runnable()

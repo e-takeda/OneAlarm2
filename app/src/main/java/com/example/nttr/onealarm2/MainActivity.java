@@ -8,6 +8,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.media.AudioManager;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -16,6 +17,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.TimePicker;
+import android.widget.Toast;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -29,7 +31,10 @@ public class MainActivity extends AppCompatActivity {
     EditText Eminute;
     TextView confview;
     Calendar calendar;
-    Button set;
+    Calendar Dcalendar;
+    Button timeSet;
+    Button alarmSet;
+    private TimePickerDialog t_dlg;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,39 +51,46 @@ public class MainActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_main);
 
-//        //Intentを取得
-//        Intent intent = getIntent();
-//        //intentから指定キーの文字列を取得する
-//        boolean isSnooze = intent.getBooleanExtra("snooze",false);
-//        if (isSnooze){
-//            snooze();
+        //Intentを取得
+        Intent intent = getIntent();
+        //intentから指定キーの文字列を取得する
+        boolean isSnooze = intent.getBooleanExtra("snooze",false);
+
+        if (isSnooze){
+            System.out.println("スヌーズ");
+//            SimpleDateFormat sdf = new SimpleDateFormat("yyyy年MM月dd日hh時mm分ss秒");
+//            System.out.println(sdf.format(calendar.getTime()));
+
+            snooze();
+
 //            isSnooze = false;
-//            System.out.println("snooze");
-//        }else{
-//            System.out.println("normal");
+        }else{
 
-
-            enter = (Button) findViewById(R.id.enter);
-            enter.setOnClickListener(new View.OnClickListener() {
+            timeSet = (Button) findViewById(R.id.timeSet);
+            timeSet.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-
-                    timerSet();
+                    timeSet();
                 }
-
 
             });
 
-        set = (Button) findViewById(R.id.set);
-        set.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+            alarmSet = (Button) findViewById(R.id.alarmSet);
+            alarmSet.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    alarm();
+                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy年MM月dd日hh時mm分ss秒");
+                    System.out.println(sdf.format(calendar.getTime()));
+                }
 
-                timeSet();
-            }
+            });
 
 
-        });
+
+        }
+
+
 
 
 
@@ -86,70 +98,69 @@ public class MainActivity extends AppCompatActivity {
 
 //    }
 
-    //時を取得
-    private String mhours() {
-        Ehour = (EditText) this.findViewById(R.id.hour);
-        String hour = Ehour.getText().toString();
-        return hour;
-    }
+//    //時を取得
+//    private String mhours() {
+//        Ehour = (EditText) this.findViewById(R.id.hour);
+//        String hour = Ehour.getText().toString();
+//        return hour;
+//    }
+//
+//    //分を取得
+//    private String mminutes() {
+//        Eminute = (EditText) this.findViewById(R.id.minute);
+//        String minute = Eminute.getText().toString();
+//        return minute;
+//    }
 
-    //分を取得
-    private String mminutes() {
-        Eminute = (EditText) this.findViewById(R.id.minute);
-        String minute = Eminute.getText().toString();
-        return minute;
-    }
+//    //設定した時刻を表示
+//    private void timeConf(String h, String m) {
+//        confview = (TextView) this.findViewById(R.id.confview);
+//        confview.setText("設定した時間は　" + h + "：" + m);
+//    }
 
-    //設定した時刻を表示
-    private void timeConf(String h, String m) {
-        confview = (TextView) this.findViewById(R.id.confview);
-        confview.setText("設定した時間は　" + h + "：" + m);
-    }
-
-
-
-
-
-    public void timerSet() {
-//        Intent intent = new Intent(getApplicationContext(), messageService.class);
-//        Context ct = getApplication();
-//        PendingIntent pendingIntent = PendingIntent.getService(ct, 0,
-//                intent, PendingIntent.FLAG_UPDATE_CURRENT);
-
-
-
-        Calendar Dcalendar = Calendar.getInstance(TimeZone.getTimeZone("Asia/Tokyo"));
-        calendar = Calendar.getInstance(TimeZone.getTimeZone("Asia/Tokyo"));// Calendar取得
-        calendar.setTimeInMillis(System.currentTimeMillis()); // 現在時刻を取得
-
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy年MM月dd日hh時mm分ss秒");
-        System.out.println(sdf.format(calendar.getTime()));
-
-
-
-        calendar.set(Calendar.HOUR_OF_DAY, Integer.parseInt(mhours()));
-        calendar.set(Calendar.MINUTE, Integer.parseInt(mminutes()));
-        calendar.set(Calendar.SECOND, 0);
-        calendar.set(Calendar.MILLISECOND, 0);
-
-//        calendar.add(Calendar.SECOND, 5);
-
-        System.out.println(sdf.format(calendar.getTime()));
-
-        int diff = Dcalendar.compareTo(calendar);
-
-        if (diff >= 0){
-
-            System.out.println("正しい時間に設定してください。");
-        } else {
-
-            alarm();
-        }
-    }
+//    public void timerSet() {
+////        Intent intent = new Intent(getApplicationContext(), messageService.class);
+////        Context ct = getApplication();
+////        PendingIntent pendingIntent = PendingIntent.getService(ct, 0,
+////                intent, PendingIntent.FLAG_UPDATE_CURRENT);
+//
+//
+//
+//        Calendar Dcalendar = Calendar.getInstance(TimeZone.getTimeZone("Asia/Tokyo"));
+//        calendar = Calendar.getInstance(TimeZone.getTimeZone("Asia/Tokyo"));// Calendar取得
+//        calendar.setTimeInMillis(System.currentTimeMillis()); // 現在時刻を取得
+//
+//        SimpleDateFormat sdf = new SimpleDateFormat("yyyy年MM月dd日hh時mm分ss秒");
+//        System.out.println(sdf.format(calendar.getTime()));
+//
+//
+//
+//        calendar.set(Calendar.HOUR_OF_DAY, Integer.parseInt(mhours()));
+//        calendar.set(Calendar.MINUTE, Integer.parseInt(mminutes()));
+//        calendar.set(Calendar.SECOND, 0);
+//        calendar.set(Calendar.MILLISECOND, 0);
+//
+////        calendar.add(Calendar.SECOND, 5);
+//
+//        System.out.println(sdf.format(calendar.getTime()));
+//
+//        int diff = Dcalendar.compareTo(calendar);
+//
+//        if (diff >= 0){
+//
+//            System.out.println("正しい時間に設定してください。");
+//        } else {
+//
+//            alarm();
+//        }
+//    }
 
     @SuppressLint("NewApi")
     public void alarm(){
+
+
         PendingIntent pendingIntent = getPendingIntent();
+
         // AlarmManager の設定・開始
         AlarmManager am = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
 //        API Level 19未満は、 set
@@ -164,23 +175,41 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-//
-//    public void snooze(){
-//        calendar.add(Calendar.MINUTE, 5);
-//        SimpleDateFormat sdf = new SimpleDateFormat("yyyy年MM月dd日hh時mm分ss秒");
-//        System.out.println(sdf.format(calendar.getTime()));
-//        alarm();
-//    }
+
+    public void snooze(){
+
+
+        SharedPreferences prefer = getSharedPreferences("MainActivity", MODE_PRIVATE);
+        SharedPreferences.Editor editor = prefer.edit();
+        calendar = Calendar.getInstance(TimeZone.getTimeZone("Asia/Tokyo"));
+        calendar.setTimeInMillis(prefer.getLong("calendar",0));
+        editor.clear();
 
 
 
 
+
+
+        calendar.add(Calendar.MINUTE, 1);
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy年MM月dd日hh時mm分ss秒");
+        System.out.println(sdf.format(calendar.getTime()));
+        long millis = calendar.getTimeInMillis();
+        editor.putLong("calendar",millis);
+        editor.commit();
+        alarm();
+
+
+
+    }
 
 
 
     private PendingIntent getPendingIntent() {
         Intent intent = new Intent(this, AlarmBroadcastReceiver.class);
+
         intent.setClass(this, AlarmBroadcastReceiver.class);
+
+
         // 複数のアラームを登録する場合はPendingIntent.getBroadcastの第二引数を変更する
         // 第二引数が同じで第四引数にFLAG_CANCEL_CURRENTがセットされている場合、2回以上呼び出されたときは
         // あとからのものが上書きされる
@@ -232,42 +261,71 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-
-
-
-
            public void timeSet(){
 
 
-                final Calendar Dcalendar = Calendar.getInstance(TimeZone.getTimeZone("Asia/Tokyo"));
-                final Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("Asia/Tokyo"));// Calendar取得
+                Dcalendar = Calendar.getInstance(TimeZone.getTimeZone("Asia/Tokyo"));
+                calendar = Calendar.getInstance(TimeZone.getTimeZone("Asia/Tokyo"));// Calendar取得
+                Dcalendar.setTimeInMillis(System.currentTimeMillis()); // 現在時刻を取得
                 calendar.setTimeInMillis(System.currentTimeMillis()); // 現在時刻を取得
 
                 SimpleDateFormat sdf = new SimpleDateFormat("yyyy年MM月dd日hh時mm分ss秒");
                 System.out.println(sdf.format(calendar.getTime()));
 
-
-
                 final int hour = calendar.get(Calendar.HOUR_OF_DAY);
                 final int minute = calendar.get(Calendar.MINUTE);
 
                 TimePickerDialog timePickerDialog = new TimePickerDialog(MainActivity.this, new TimePickerDialog.OnTimeSetListener() {
+
+
                     @Override
+
                     public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
+
+                        
 
                         calendar.set(Calendar.HOUR_OF_DAY, hourOfDay);
                         calendar.set(Calendar.MINUTE, minute);
                         calendar.set(Calendar.SECOND, 0);
                         calendar.set(Calendar.MILLISECOND, 0);
-                        DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                        set.setText(df.format(calendar.getTime()));
+                        DateFormat df = new SimpleDateFormat("HH:mm:ss");
+                        timeSet.setText(df.format(calendar.getTime()));
+                        SimpleDateFormat sdf = new SimpleDateFormat("yyyy年MM月dd日hh時mm分ss秒");
+                        System.out.println(sdf.format(calendar.getTime()));
 
+                        SharedPreferences prefer = getSharedPreferences("MainActivity",MODE_PRIVATE);
+                        SharedPreferences.Editor editor = prefer.edit();
+                        long millis = calendar.getTimeInMillis();
+                        editor.putLong("calendar",millis);
+                        editor.commit();
+
+                        int diff = Dcalendar.compareTo(calendar);
+
+                        if (diff >= 0){
+                            System.out.println("正しい時間に設定してください。");
+                            Toast.makeText(getApplicationContext(), "正しい時間に設定してください。", Toast.LENGTH_SHORT).show();
+                            } else {
+
+                            }
                     }
+
                 }, hour, minute, true);
                 timePickerDialog.show();
+
+
+
+
+
+
+
+
+//               editor.putInt("shour", calendar.HOUR_OF_DAY);
+//               editor.putInt("sminute", calendar.MINUTE);
+//               editor.commit();
+
+
+                
             }
-
-
 
 
 

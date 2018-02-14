@@ -47,25 +47,20 @@ public class messageActivity extends AppCompatActivity{
         });
 
 
-//        snooze = findViewById(R.id.snooze);
-//        snooze.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
+        snooze = findViewById(R.id.snooze);
+        snooze.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
 //                isSnooze = true;
-//                stopService(new Intent(messageActivity.this, messageService.class));
-//
-//                Intent intent = new Intent(messageActivity.this, MainActivity.class);
-//                intent.putExtra("snooze", true);
-//
-//                startActivity(intent);
-//            }
-//        });
+                stopService(new Intent(messageActivity.this, messageService.class));
 
+                Intent intent = new Intent(messageActivity.this, MainActivity.class);
+                intent.putExtra("snooze", true);
+                System.out.println("スヌーズ");
 
-
-
-
-
+                startActivity(intent);
+            }
+        });
 
 
     }
