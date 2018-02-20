@@ -9,12 +9,16 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.media.AudioManager;
 import android.os.Bundle;
+import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.TextClock;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
@@ -32,8 +36,23 @@ public class MainActivity extends AppCompatActivity {
     TextView confview;
     Calendar calendar;
     Calendar Dcalendar;
-    Button timeSet;
-    Button alarmSet;
+    ImageButton timeSet;
+    ImageButton alarmSet;
+    ConstraintLayout Constraint;
+    ImageButton vibe;
+    ImageButton time;
+    ImageButton music;
+    Button preview;
+    Button preStop;
+    TextClock TextClock;
+    TextView startTextView;
+
+
+    boolean isVibe = true;
+    boolean isime = true;
+    boolean isMusic = true;
+
+
     private TimePickerDialog t_dlg;
 
     @Override
@@ -46,14 +65,79 @@ public class MainActivity extends AppCompatActivity {
         registerReceiver(broadcastReceiver, new IntentFilter(Intent.ACTION_HEADSET_PLUG));
         registerReceiver(broadcastReceiver, new IntentFilter(AudioManager.ACTION_AUDIO_BECOMING_NOISY));
 
-
-
-
         setContentView(R.layout.activity_main);
+
+        timeSet = (ImageButton) findViewById(R.id.timeSet);
+
+        vibe = findViewById(R.id.vibe);
+        time = findViewById(R.id.time);
+        music = findViewById(R.id.music);
+
+
+        final SharedPreferences prefer = getSharedPreferences("MainActivity",MODE_PRIVATE);
+        isVibe = prefer.getBoolean("vibe",true);
+
+        if (isVibe){
+            vibe.setImageResource(R.mipmap.vibe1);
+        }else {
+            vibe.setImageResource(R.mipmap.vibe2);
+        }
+
+
+        vibe.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                vibe();
+
+            }
+        });
+
+        preStop = (Button) findViewById(R.id.preStop);
+        preStop.setVisibility(View.GONE);
+
+
+        preview = (Button) findViewById(R.id.preview);
+
+        preview.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this, messageService.class);
+                startService(intent);
+                preview.setVisibility(View.GONE);
+                preStop.setVisibility(View.VISIBLE);
+            }
+        });
+
+        preStop.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this, messageService.class);
+                stopService(intent);
+                preview.setVisibility(View.VISIBLE);
+                preStop.setVisibility(View.GONE);
+            }
+        });
+
+
+        alarmSet = (ImageButton) findViewById(R.id.alarmSet);
+        startTextView = (TextView) findViewById(R.id.startTextView);
+        alarmSet.setVisibility(View.INVISIBLE);
+        startTextView.setVisibility(View.INVISIBLE);
+
+
+
 
         //Intentを取得
         Intent intent = getIntent();
         //intentから指定キーの文字列を取得する
+
+        boolean isStop = intent.getBooleanExtra("stop",false);
+
+        if(isStop){
+            timeSet.setImageResource(R.mipmap.timebutton1);
+
+        }
+
         boolean isSnooze = intent.getBooleanExtra("snooze",false);
 
         if (isSnooze){
@@ -66,7 +150,7 @@ public class MainActivity extends AppCompatActivity {
 //            isSnooze = false;
         }else{
 
-            timeSet = (Button) findViewById(R.id.timeSet);
+
             timeSet.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -75,10 +159,14 @@ public class MainActivity extends AppCompatActivity {
 
             });
 
-            alarmSet = (Button) findViewById(R.id.alarmSet);
+            alarmSet = (ImageButton) findViewById(R.id.alarmSet);
             alarmSet.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    timeSet.setImageResource(R.mipmap.timebutton2);
+                    Constraint = findViewById(R.id.Constraint);
+                    Constraint.setBackgroundColor(Color.rgb(239,161,143));
+
                     alarm();
                     SimpleDateFormat sdf = new SimpleDateFormat("yyyy年MM月dd日hh時mm分ss秒");
                     System.out.println(sdf.format(calendar.getTime()));
@@ -89,7 +177,6 @@ public class MainActivity extends AppCompatActivity {
 
 
         }
-
 
 
 
@@ -176,19 +263,17 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    public void snooze(){
 
+
+
+
+    public void snooze(){
 
         SharedPreferences prefer = getSharedPreferences("MainActivity", MODE_PRIVATE);
         SharedPreferences.Editor editor = prefer.edit();
         calendar = Calendar.getInstance(TimeZone.getTimeZone("Asia/Tokyo"));
         calendar.setTimeInMillis(prefer.getLong("calendar",0));
         editor.clear();
-
-
-
-
-
 
         calendar.add(Calendar.MINUTE, 1);
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy年MM月dd日hh時mm分ss秒");
@@ -208,6 +293,9 @@ public class MainActivity extends AppCompatActivity {
         Intent intent = new Intent(this, AlarmBroadcastReceiver.class);
 
         intent.setClass(this, AlarmBroadcastReceiver.class);
+
+
+
 
 
         // 複数のアラームを登録する場合はPendingIntent.getBroadcastの第二引数を変更する
@@ -236,12 +324,26 @@ public class MainActivity extends AppCompatActivity {
                     } else if (state > 0) {
                         // イヤホン・ヘッドセット(マイク付き)が装着された
                         System.out.println("ヘッドセット装着");
+                        SharedPreferences prefer = getSharedPreferences("MainActivity",MODE_PRIVATE);
+                        SharedPreferences.Editor editor = prefer.edit();
+                        float volume = 0.7f;
+                        editor.putFloat("volume",0.7f);
+                        editor.commit();
+
                     }
                     break;
                 case AudioManager.ACTION_AUDIO_BECOMING_NOISY:
 
                     // 音声経路の変更！大きな音が鳴りますよ！！
                     System.out.println("ヘッドセットなし２");
+                    System.out.println("ヘッドセット装着");
+                    SharedPreferences prefer = getSharedPreferences("MainActivity",MODE_PRIVATE);
+                    SharedPreferences.Editor editor = prefer.edit();
+                    float volume = 0.0f;
+                    editor.putFloat("volume",0.0f);
+                    editor.commit();
+
+
                     break;
                 default:
                     break;
@@ -288,8 +390,13 @@ public class MainActivity extends AppCompatActivity {
                         calendar.set(Calendar.MINUTE, minute);
                         calendar.set(Calendar.SECOND, 0);
                         calendar.set(Calendar.MILLISECOND, 0);
-                        DateFormat df = new SimpleDateFormat("HH:mm:ss");
-                        timeSet.setText(df.format(calendar.getTime()));
+                        DateFormat df = new SimpleDateFormat("HH:mm");
+//                        timeSet.setText(df.format(calendar.getTime()));
+                        TextClock = (android.widget.TextClock) findViewById(R.id.textClock);
+                        TextClock.setText(df.format(calendar.getTime()));
+                        alarmSet.setVisibility(View.VISIBLE);
+                        startTextView.setVisibility(View.VISIBLE);
+
                         SimpleDateFormat sdf = new SimpleDateFormat("yyyy年MM月dd日hh時mm分ss秒");
                         System.out.println(sdf.format(calendar.getTime()));
 
@@ -323,9 +430,39 @@ public class MainActivity extends AppCompatActivity {
 //               editor.putInt("sminute", calendar.MINUTE);
 //               editor.commit();
 
-
-                
             }
+
+
+
+
+            public void vibe(){
+
+                if (isVibe){
+                    vibe.setImageResource(R.mipmap.vibe2);
+                    isVibe = false;
+                    SharedPreferences prefer = getSharedPreferences("MainActivity",MODE_PRIVATE);
+                    SharedPreferences.Editor editor = prefer.edit();
+                    boolean isVibe = false;
+                    editor.putBoolean("vibe",isVibe);
+                    editor.commit();
+
+                }else{
+                    vibe.setImageResource(R.mipmap.vibe1);
+                    isVibe = true;
+                    SharedPreferences prefer = getSharedPreferences("MainActivity",MODE_PRIVATE);
+                    SharedPreferences.Editor editor = prefer.edit();
+                    boolean isVibe = true;
+                    editor.putBoolean("vibe",isVibe);
+                    editor.commit();
+                }
+
+
+            }
+
+
+
+
+
 
 
 

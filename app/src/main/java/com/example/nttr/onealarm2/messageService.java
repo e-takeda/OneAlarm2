@@ -2,6 +2,7 @@ package com.example.nttr.onealarm2;
 
 import android.app.Service;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
@@ -18,9 +19,14 @@ import java.io.IOException;
 public class messageService extends Service implements MediaPlayer.OnCompletionListener{
 
     MediaPlayer mediaPlayer;
-    float volume = 0.1f;
+    float volume = 0.7f;
     private Vibrator vib;
     private long pattern[] = {1000, 200, 700, 200, 400, 200 };
+
+    boolean isVibe;
+
+
+
 
 
     public void onCreate()
@@ -31,6 +37,22 @@ public class messageService extends Service implements MediaPlayer.OnCompletionL
 
 //        Toast.makeText(this, "Received ", Toast.LENGTH_LONG).show();
         super.onCreate();
+
+
+
+        SharedPreferences prefer = getSharedPreferences("MainActivity",MODE_PRIVATE);
+        isVibe = prefer.getBoolean("vibe",true);
+        if (isVibe){
+            System.out.println("バイブおん");
+        }else{
+            System.out.println("バイブオフ");
+        }
+
+        volume = prefer.getFloat("volume",0.7f);
+
+
+
+
     }
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
@@ -62,10 +84,11 @@ public class messageService extends Service implements MediaPlayer.OnCompletionL
             mediaPlayer.setOnCompletionListener(this);
             mediaPlayer.prepare();
             mediaPlayer.start();
-            vib = (Vibrator)getSystemService(VIBRATOR_SERVICE);
-            vib.vibrate(1000);
-            vib.vibrate(pattern, 0);
-
+            if (isVibe){
+                vib = (Vibrator)getSystemService(VIBRATOR_SERVICE);
+                vib.vibrate(1000);
+                vib.vibrate(pattern, 0);
+            }
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -101,6 +124,12 @@ public class messageService extends Service implements MediaPlayer.OnCompletionL
 //        }
 //
 //    };
+
+
+
+
+
+
 
 
 }

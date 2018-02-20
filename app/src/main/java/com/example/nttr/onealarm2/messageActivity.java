@@ -6,15 +6,15 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.WindowManager;
-import android.widget.Button;
+import android.widget.ImageButton;
 
 /**
  * Created by nttr on 2018/02/06.
  */
 
 public class messageActivity extends AppCompatActivity{
-    Button stop;
-    Button snooze;
+    ImageButton stop;
+    ImageButton snooze;
 
 
 //    public static boolean isSnooze=false;
@@ -32,6 +32,14 @@ public class messageActivity extends AppCompatActivity{
 
 
 
+
+
+
+
+
+
+
+
         startService(new Intent(this, messageService.class));
 
 
@@ -42,7 +50,15 @@ public class messageActivity extends AppCompatActivity{
                 stopService(new Intent(messageActivity.this, messageService.class));
 //                PreferenceUtil pref = new PreferenceUtil(PlaySoundActivity.this);
 //                pref.delete(MainActivity.ALARM_TIME);
-                finish();
+
+//                finish();
+                Intent intent = new Intent(messageActivity.this, MainActivity.class);
+                intent.putExtra("stop", true);
+                System.out.println("stop");
+
+                startActivity(intent);
+
+
             }
         });
 
